@@ -112,6 +112,7 @@ function applyProfile(profileId) {
 
     try {
         let appliedCount = 0;
+        let failedFields = [];
 
         // Set Model ID
         const modelIdInput = document.querySelector("#custom_model_id");
@@ -123,6 +124,7 @@ function applyProfile(profileId) {
             console.log(`[${MODULE_NAME}] Set Model ID to:`, profile.modelId || '(empty)');
         } else {
             console.warn(`[${MODULE_NAME}] Model ID input (#custom_model_id) not found`);
+            failedFields.push('Model ID');
         }
 
         // Set Prompt Post-Processing
@@ -135,10 +137,34 @@ function applyProfile(profileId) {
             console.log(`[${MODULE_NAME}] Set Post-Processing to:`, profile.postProcessing);
         } else {
             console.warn(`[${MODULE_NAME}] Post-Processing select (#custom_prompt_post_processing) not found`);
+            failedFields.push('Post-Processing');
         }
 
-        // Set Include Body Parameters - explicitly handle empty values
-        const bodyParamsInput = document.querySelector("#custom_include_body");
+        // Set Include Body Parameters - try multiple selectors
+        let bodyParamsInput = document.querySelector("#custom_include_body");
+
+        // If not found, try looking inside the dialog
+        if (!bodyParamsInput) {
+            console.log(`[${MODULE_NAME}] Trying to find body params in dialog...`);
+            const dialog = document.querySelector("body > dialog");
+            if (dialog) {
+                bodyParamsInput = dialog.querySelector("#custom_include_body");
+                console.log(`[${MODULE_NAME}] Found dialog, searching inside...`, bodyParamsInput ? 'Found!' : 'Not found');
+            }
+        }
+
+        // Try alternative selector within popup
+        if (!bodyParamsInput) {
+            bodyParamsInput = document.querySelector("dialog #custom_include_body");
+            console.log(`[${MODULE_NAME}] Trying dialog selector:`, bodyParamsInput ? 'Found!' : 'Not found');
+        }
+
+        // Try even more specific selector
+        if (!bodyParamsInput) {
+            bodyParamsInput = document.querySelector("body > dialog > div.popup-body > div.popup-content #custom_include_body");
+            console.log(`[${MODULE_NAME}] Trying specific popup selector:`, bodyParamsInput ? 'Found!' : 'Not found');
+        }
+
         if (bodyParamsInput) {
             // Set the value (even if empty)
             bodyParamsInput.value = profile.bodyParams || '';
@@ -156,14 +182,20 @@ function applyProfile(profileId) {
             appliedCount++;
             console.log(`[${MODULE_NAME}] Set Body Parameters to:`, profile.bodyParams || '(empty)');
         } else {
-            console.warn(`[${MODULE_NAME}] Body Parameters input (#custom_include_body) not found`);
+            console.warn(`[${MODULE_NAME}] Body Parameters input (#custom_include_body) not found in any location`);
+            console.warn(`[${MODULE_NAME}] You may need to open the API settings dialog first`);
+            failedFields.push('Body Parameters (dialog may be closed)');
         }
 
         if (appliedCount > 0) {
-            toastr.success(`Applied: ${profile.name}`);
+            if (failedFields.length > 0) {
+                toastr.warning(`Applied: ${profile.name} (couldn't set: ${failedFields.join(', ')})`);
+            } else {
+                toastr.success(`Applied: ${profile.name}`);
+            }
             console.log(`[${MODULE_NAME}] Successfully applied ${appliedCount} settings`);
         } else {
-            toastr.warning('No settings applied. Check if you are on the API settings page.');
+            toastr.warning('No settings applied. Make sure the API settings dialog is open.');
             console.warn(`[${MODULE_NAME}] No settings were applied`);
         }
     } catch (error) {
@@ -184,6 +216,7 @@ function captureCurrentSettings(profileId) {
 
     try {
         let capturedCount = 0;
+        let failedFields = [];
 
         // Capture Model ID
         const modelIdInput = document.querySelector("#custom_model_id");
@@ -193,6 +226,7 @@ function captureCurrentSettings(profileId) {
             console.log(`[${MODULE_NAME}] Captured Model ID:`, profile.modelId);
         } else {
             console.warn(`[${MODULE_NAME}] Model ID input not found`);
+            failedFields.push('Model ID');
         }
 
         // Capture Prompt Post-Processing
@@ -203,16 +237,35 @@ function captureCurrentSettings(profileId) {
             console.log(`[${MODULE_NAME}] Captured Post-Processing:`, profile.postProcessing);
         } else {
             console.warn(`[${MODULE_NAME}] Post-Processing select not found`);
+            failedFields.push('Post-Processing');
         }
 
-        // Capture Include Body Parameters
-        const bodyParamsInput = document.querySelector("#custom_include_body");
+        // Capture Include Body Parameters - try multiple selectors
+        let bodyParamsInput = document.querySelector("#custom_include_body");
+
+        // If not found, try looking inside the dialog
+        if (!bodyParamsInput) {
+            const dialog = document.querySelector("body > dialog");
+            if (dialog) {
+                bodyParamsInput = dialog.querySelector("#custom_include_body");
+            }
+        }
+
+        if (!bodyParamsInput) {
+            bodyParamsInput = document.querySelector("dialog #custom_include_body");
+        }
+
+        if (!bodyParamsInput) {
+            bodyParamsInput = document.querySelector("body > dialog > div.popup-body > div.popup-content #custom_include_body");
+        }
+
         if (bodyParamsInput) {
             profile.bodyParams = bodyParamsInput.value || '';
             capturedCount++;
             console.log(`[${MODULE_NAME}] Captured Body Parameters:`, profile.bodyParams);
         } else {
             console.warn(`[${MODULE_NAME}] Body Parameters input not found`);
+            failedFields.push('Body Parameters (dialog may be closed)');
         }
 
         if (capturedCount > 0) {
@@ -221,10 +274,14 @@ function captureCurrentSettings(profileId) {
             if (switcherWindow) {
                 renderSwitcherProfiles();
             }
-            toastr.success(`Captured to: ${profile.name}`);
+            if (failedFields.length > 0) {
+                toastr.warning(`Captured to: ${profile.name} (couldn't capture: ${failedFields.join(', ')})`);
+            } else {
+                toastr.success(`Captured to: ${profile.name}`);
+            }
             console.log(`[${MODULE_NAME}] Captured ${capturedCount} settings successfully`);
         } else {
-            toastr.warning('No settings captured. Check if you are on the API settings page.');
+            toastr.warning('No settings captured. Make sure the API settings dialog is open.');
             console.warn(`[${MODULE_NAME}] No settings were captured`);
         }
     } catch (error) {
