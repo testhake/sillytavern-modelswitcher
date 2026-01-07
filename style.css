@@ -8,107 +8,36 @@
         line-height: 1.4;
     }
 
+    #ms_settings .title_restorable {
+        margin: 15px 0 8px 0;
+        padding-top: 8px;
+        border-top: 1px solid #dee2e6;
+    }
+
+    #ms_settings .marginBot10 {
+        margin-bottom: 12px;
+    }
+
 #ms_toggle_button {
     display: flex;
     align-items: center;
     gap: 0.5em;
 }
 
-/* Switcher Window */
-#ms_switcher_window {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 500px;
-    max-height: 600px;
-    background: var(--SmartThemeBodyColor, #222);
-    border: 2px solid var(--SmartThemeBorderColor, #444);
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-}
-
-    #ms_switcher_window.dragging {
-        opacity: 0.8;
-    }
-
-.ms-window-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 15px;
-    background: var(--SmartThemeBlurTintColor, #333);
-    border-bottom: 1px solid var(--SmartThemeBorderColor, #444);
-    border-radius: 6px 6px 0 0;
-    user-select: none;
-}
-
-.ms-window-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--SmartThemeQuoteColor, #fff);
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.ms-window-close {
-    background: none;
-    border: none;
-    color: var(--SmartThemeQuoteColor, #aaa);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 3px;
-    font-size: 16px;
-    transition: all 0.2s;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-    .ms-window-close:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--SmartThemeQuoteColor, #fff);
-    }
-
-.ms-window-body {
-    padding: 15px;
-    overflow-y: auto;
-    flex: 1;
-    max-height: 520px;
-}
-
-    .ms-window-body::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .ms-window-body::-webkit-scrollbar-track {
-        background: var(--SmartThemeBodyColor, #222);
-    }
-
-    .ms-window-body::-webkit-scrollbar-thumb {
-        background: var(--SmartThemeBorderColor, #444);
-        border-radius: 4px;
-    }
-
-.ms-toolbar {
-    margin-bottom: 15px;
-}
-
+/* Settings Profiles */
 .ms-empty-state {
     text-align: center;
-    padding: 40px 20px;
-    color: var(--SmartThemeQuoteColor, #888);
+    padding: 20px;
+    color: #6c757d;
     font-style: italic;
+    font-size: 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
 .ms-profile-item {
-    background: var(--SmartThemeBlurTintColor, #1a1a1a);
-    border: 1px solid var(--SmartThemeBorderColor, #444);
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 12px;
@@ -145,14 +74,6 @@
         background: rgba(52, 152, 219, 0.4);
     }
 
-.ms-apply-btn {
-    background: rgba(46, 204, 113, 0.2);
-}
-
-    .ms-apply-btn:hover {
-        background: rgba(46, 204, 113, 0.4);
-    }
-
 .ms-delete-btn {
     background: rgba(231, 76, 60, 0.2);
 }
@@ -175,19 +96,143 @@
 
     .ms-field label {
         font-size: 11px;
-        color: var(--SmartThemeQuoteColor, #aaa);
+        color: #6c757d;
         font-weight: 500;
     }
 
     .ms-field input,
+    .ms-field select,
     .ms-field textarea {
         font-size: 12px;
     }
 
+/* Compact Switcher Window */
+#ms_switcher_window {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 250px;
+    max-height: 400px;
+    background: var(--SmartThemeBodyColor, #222);
+    border: 2px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+    #ms_switcher_window.dragging {
+        opacity: 0.8;
+    }
+
+.ms-window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--SmartThemeBlurTintColor, #333);
+    border-bottom: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+}
+
+.ms-window-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--SmartThemeQuoteColor, #fff);
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.ms-window-close {
+    background: none;
+    border: none;
+    color: var(--SmartThemeQuoteColor, #aaa);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    font-size: 14px;
+    transition: all 0.2s;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .ms-window-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--SmartThemeQuoteColor, #fff);
+    }
+
+.ms-window-body {
+    padding: 8px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 350px;
+}
+
+    .ms-window-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .ms-window-body::-webkit-scrollbar-track {
+        background: var(--SmartThemeBodyColor, #222);
+    }
+
+    .ms-window-body::-webkit-scrollbar-thumb {
+        background: var(--SmartThemeBorderColor, #444);
+        border-radius: 3px;
+    }
+
+.ms-switcher-empty {
+    text-align: center;
+    padding: 30px 15px;
+    color: var(--SmartThemeQuoteColor, #888);
+    font-style: italic;
+    font-size: 12px;
+}
+
+.ms-switcher-profile-btn {
+    width: 100%;
+    background: var(--SmartThemeBlurTintColor, #1a1a1a);
+    border: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+    .ms-switcher-profile-btn:hover {
+        background: var(--SmartThemeBorderColor, #333);
+        border-color: var(--SmartThemeQuoteColor, #666);
+        transform: translateY(-1px);
+    }
+
+    .ms-switcher-profile-btn:active {
+        transform: translateY(0);
+    }
+
+.ms-switcher-profile-name {
+    color: var(--SmartThemeQuoteColor, #fff);
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.ms-switcher-profile-model {
+    color: var(--SmartThemeQuoteColor, #aaa);
+    font-size: 11px;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
 @media (max-width: 768px) {
     #ms_switcher_window {
-        width: 90%;
-        max-width: 450px;
-        right: 5%;
+        width: 220px;
+        right: 10px;
     }
 }

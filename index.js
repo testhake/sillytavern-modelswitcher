@@ -16,7 +16,7 @@ function createDefaultProfile() {
         id: Date.now().toString(),
         name: 'New Profile',
         modelId: '',
-        postProcessing: '',
+        postProcessing: 'default',
         bodyParams: ''
     };
 }
@@ -34,7 +34,10 @@ async function loadSettings() {
         settings.profiles = [];
     }
 
-    renderProfiles();
+    renderSettingsProfiles();
+    if (switcherWindow) {
+        renderSwitcherProfiles();
+    }
 }
 
 function saveSettings() {
@@ -46,7 +49,11 @@ function addProfile() {
     const profile = createDefaultProfile();
     settings.profiles.push(profile);
     saveSettings();
-    renderProfiles();
+    renderSettingsProfiles();
+    if (switcherWindow) {
+        renderSwitcherProfiles();
+    }
+    console.log(`[${MODULE_NAME}] Added new profile:`, profile);
 }
 
 function deleteProfile(profileId) {
@@ -54,7 +61,10 @@ function deleteProfile(profileId) {
     if (index !== -1) {
         settings.profiles.splice(index, 1);
         saveSettings();
-        renderProfiles();
+        renderSettingsProfiles();
+        if (switcherWindow) {
+            renderSwitcherProfiles();
+        }
     }
 }
 
@@ -63,6 +73,9 @@ function updateProfile(profileId, field, value) {
     if (profile) {
         profile[field] = value;
         saveSettings();
+        if (switcherWindow) {
+            renderSwitcherProfiles();
+        }
     }
 }
 
@@ -70,33 +83,52 @@ function applyProfile(profileId) {
     const profile = settings.profiles.find(p => p.id === profileId);
     if (!profile) {
         toastr.error('Profile not found');
+        console.error(`[${MODULE_NAME}] Profile not found:`, profileId);
         return;
     }
 
     try {
+        let appliedCount = 0;
+
         // Set Model ID
         const modelIdInput = document.querySelector("#custom_model_id");
-        if (modelIdInput && profile.modelId) {
-            modelIdInput.value = profile.modelId;
+        if (modelIdInput) {
+            modelIdInput.value = profile.modelId || '';
             modelIdInput.dispatchEvent(new Event('input', { bubbles: true }));
+            appliedCount++;
+            console.log(`[${MODULE_NAME}] Set Model ID:`, profile.modelId);
+        } else {
+            console.warn(`[${MODULE_NAME}] Model ID input not found`);
         }
 
         // Set Prompt Post-Processing
         const postProcessingSelect = document.querySelector("#custom_prompt_post_processing");
-        if (postProcessingSelect && profile.postProcessing) {
-            postProcessingSelect.value = profile.postProcessing;
+        if (postProcessingSelect) {
+            postProcessingSelect.value = profile.postProcessing || 'default';
             postProcessingSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            appliedCount++;
+            console.log(`[${MODULE_NAME}] Set Post-Processing:`, profile.postProcessing);
+        } else {
+            console.warn(`[${MODULE_NAME}] Post-Processing select not found`);
         }
 
         // Set Include Body Parameters
         const bodyParamsInput = document.querySelector("#custom_include_body");
-        if (bodyParamsInput && profile.bodyParams) {
-            bodyParamsInput.value = profile.bodyParams;
+        if (bodyParamsInput) {
+            bodyParamsInput.value = profile.bodyParams || '';
             bodyParamsInput.dispatchEvent(new Event('input', { bubbles: true }));
+            appliedCount++;
+            console.log(`[${MODULE_NAME}] Set Body Parameters:`, profile.bodyParams);
+        } else {
+            console.warn(`[${MODULE_NAME}] Body Parameters input not found`);
         }
 
-        toastr.success(`Applied profile: ${profile.name}`);
-        console.log(`[${MODULE_NAME}] Applied profile:`, profile);
+        if (appliedCount > 0) {
+            toastr.success(`Applied profile: ${profile.name}`);
+            console.log(`[${MODULE_NAME}] Successfully applied profile:`, profile);
+        } else {
+            toastr.warning('No settings were applied. Make sure you are on the API settings page.');
+        }
     } catch (error) {
         console.error(`[${MODULE_NAME}] Error applying profile:`, error);
         toastr.error(`Failed to apply profile: ${error.message}`);
@@ -111,36 +143,72 @@ function captureCurrentSettings(profileId) {
     }
 
     try {
+        let capturedCount = 0;
+
         // Capture Model ID
         const modelIdInput = document.querySelector("#custom_model_id");
         if (modelIdInput) {
             profile.modelId = modelIdInput.value;
+            capturedCount++;
         }
 
         // Capture Prompt Post-Processing
         const postProcessingSelect = document.querySelector("#custom_prompt_post_processing");
         if (postProcessingSelect) {
             profile.postProcessing = postProcessingSelect.value;
+            capturedCount++;
         }
 
         // Capture Include Body Parameters
         const bodyParamsInput = document.querySelector("#custom_include_body");
         if (bodyParamsInput) {
             profile.bodyParams = bodyParamsInput.value;
+            capturedCount++;
         }
 
-        saveSettings();
-        renderProfiles();
-        toastr.success(`Captured settings to: ${profile.name}`);
-        console.log(`[${MODULE_NAME}] Captured settings:`, profile);
+        if (capturedCount > 0) {
+            saveSettings();
+            renderSettingsProfiles();
+            toastr.success(`Captured settings to: ${profile.name}`);
+            console.log(`[${MODULE_NAME}] Captured settings:`, profile);
+        } else {
+            toastr.warning('No settings were captured. Make sure you are on the API settings page.');
+        }
     } catch (error) {
         console.error(`[${MODULE_NAME}] Error capturing settings:`, error);
         toastr.error(`Failed to capture settings: ${error.message}`);
     }
 }
 
-function renderProfiles() {
-    const container = $('#ms_profiles_container');
+// Get available post-processing options
+function getPostProcessingOptions() {
+    const postProcessingSelect = document.querySelector("#custom_prompt_post_processing");
+    const options = [];
+
+    if (postProcessingSelect) {
+        Array.from(postProcessingSelect.options).forEach(option => {
+            options.push({
+                value: option.value,
+                text: option.text
+            });
+        });
+    }
+
+    // Fallback options if not found
+    if (options.length === 0) {
+        return [
+            { value: 'default', text: 'Default' },
+            { value: 'none', text: 'None' },
+            { value: 'prompt_manager', text: 'Prompt Manager' }
+        ];
+    }
+
+    return options;
+}
+
+// Render profiles in settings
+function renderSettingsProfiles() {
+    const container = $('#ms_settings_profiles_container');
     if (!container.length) return;
 
     container.empty();
@@ -154,7 +222,13 @@ function renderProfiles() {
         return;
     }
 
+    const postProcessingOptions = getPostProcessingOptions();
+
     settings.profiles.forEach(profile => {
+        const optionsHtml = postProcessingOptions.map(opt =>
+            `<option value="${opt.value}" ${opt.value === profile.postProcessing ? 'selected' : ''}>${opt.text}</option>`
+        ).join('');
+
         const profileHtml = `
             <div class="ms-profile-item" data-profile-id="${profile.id}">
                 <div class="ms-profile-header">
@@ -168,9 +242,6 @@ function renderProfiles() {
                     <div class="ms-profile-actions">
                         <button class="menu_button ms-capture-btn" data-profile-id="${profile.id}" title="Capture current settings">
                             <i class="fa-solid fa-camera"></i>
-                        </button>
-                        <button class="menu_button ms-apply-btn" data-profile-id="${profile.id}" title="Apply this profile">
-                            <i class="fa-solid fa-check"></i>
                         </button>
                         <button class="menu_button ms-delete-btn" data-profile-id="${profile.id}" title="Delete profile">
                             <i class="fa-solid fa-trash"></i>
@@ -190,13 +261,12 @@ function renderProfiles() {
                     </div>
                     <div class="ms-field">
                         <label>Prompt Post-Processing:</label>
-                        <input 
-                            type="text" 
+                        <select 
                             class="text_pole ms-post-processing" 
-                            value="${escapeHtml(profile.postProcessing)}" 
-                            placeholder="e.g., default"
                             data-profile-id="${profile.id}"
-                        />
+                        >
+                            ${optionsHtml}
+                        </select>
                     </div>
                     <div class="ms-field">
                         <label>Include Body Parameters:</label>
@@ -213,57 +283,87 @@ function renderProfiles() {
         container.append(profileHtml);
     });
 
-    bindProfileEvents();
+    bindSettingsProfileEvents();
 }
 
-function bindProfileEvents() {
+function bindSettingsProfileEvents() {
     // Name change
-    $('.ms-profile-name').off('input').on('input', function() {
+    $('.ms-profile-name').off('input').on('input', function () {
         const profileId = $(this).data('profile-id');
         const value = $(this).val();
         updateProfile(profileId, 'name', value);
     });
 
     // Model ID change
-    $('.ms-model-id').off('input').on('input', function() {
+    $('.ms-model-id').off('input').on('input', function () {
         const profileId = $(this).data('profile-id');
         const value = $(this).val();
         updateProfile(profileId, 'modelId', value);
     });
 
     // Post-processing change
-    $('.ms-post-processing').off('input').on('input', function() {
+    $('.ms-post-processing').off('change').on('change', function () {
         const profileId = $(this).data('profile-id');
         const value = $(this).val();
         updateProfile(profileId, 'postProcessing', value);
     });
 
     // Body params change
-    $('.ms-body-params').off('input').on('input', function() {
+    $('.ms-body-params').off('input').on('input', function () {
         const profileId = $(this).data('profile-id');
         const value = $(this).val();
         updateProfile(profileId, 'bodyParams', value);
     });
 
-    // Apply button
-    $('.ms-apply-btn').off('click').on('click', function() {
-        const profileId = $(this).data('profile-id');
-        applyProfile(profileId);
-    });
-
     // Capture button
-    $('.ms-capture-btn').off('click').on('click', function() {
+    $('.ms-capture-btn').off('click').on('click', function () {
         const profileId = $(this).data('profile-id');
         captureCurrentSettings(profileId);
     });
 
     // Delete button
-    $('.ms-delete-btn').off('click').on('click', function() {
+    $('.ms-delete-btn').off('click').on('click', function () {
         const profileId = $(this).data('profile-id');
         const profile = settings.profiles.find(p => p.id === profileId);
         if (confirm(`Delete profile "${profile.name}"?`)) {
             deleteProfile(profileId);
         }
+    });
+}
+
+// Render profiles in switcher window
+function renderSwitcherProfiles() {
+    const container = $('#ms_switcher_profiles');
+    if (!container.length) return;
+
+    container.empty();
+
+    if (settings.profiles.length === 0) {
+        container.append(`
+            <div class="ms-switcher-empty">
+                No profiles. Add them in settings.
+            </div>
+        `);
+        return;
+    }
+
+    settings.profiles.forEach(profile => {
+        const profileBtn = `
+            <button class="ms-switcher-profile-btn" data-profile-id="${profile.id}" title="Click to apply this profile">
+                <div class="ms-switcher-profile-name">${escapeHtml(profile.name)}</div>
+                <div class="ms-switcher-profile-model">${escapeHtml(profile.modelId) || '(no model)'}</div>
+            </button>
+        `;
+        container.append(profileBtn);
+    });
+
+    bindSwitcherProfileEvents();
+}
+
+function bindSwitcherProfileEvents() {
+    $('.ms-switcher-profile-btn').off('click').on('click', function () {
+        const profileId = $(this).data('profile-id');
+        applyProfile(profileId);
     });
 }
 
@@ -291,13 +391,7 @@ function showSwitcherWindow() {
                 </button>
             </div>
             <div class="ms-window-body">
-                <div class="ms-toolbar">
-                    <button class="menu_button" id="ms_add_profile">
-                        <i class="fa-solid fa-plus"></i>
-                        Add Profile
-                    </button>
-                </div>
-                <div id="ms_profiles_container"></div>
+                <div id="ms_switcher_profiles"></div>
             </div>
         </div>
     `;
@@ -307,7 +401,7 @@ function showSwitcherWindow() {
 
     makeWindowDraggable();
     bindWindowEvents();
-    renderProfiles();
+    renderSwitcherProfiles();
 }
 
 function hideSwitcherWindow() {
@@ -370,10 +464,6 @@ function bindWindowEvents() {
     $('#ms_window_close').on('click', () => {
         hideSwitcherWindow();
     });
-
-    $('#ms_add_profile').on('click', () => {
-        addProfile();
-    });
 }
 
 // Initialize extension
@@ -384,6 +474,11 @@ jQuery(async () => {
 
         const buttonHtml = await $.get(`${extensionFolderPath}/button.html`);
         $("#send_but").before(buttonHtml);
+
+        // Bind add profile button in settings
+        $('#ms_add_profile').on('click', () => {
+            addProfile();
+        });
 
         $("#ms_toggle_button").on("click", () => {
             if (switcherWindow) {
