@@ -310,7 +310,7 @@ function showSwitcherWindow() {
     renderProfiles();
 }
 
-function hideSwit cherWindow() {
+function hideSwitcherWindow() {
     if (switcherWindow) {
         switcherWindow.remove();
         switcherWindow = null;
