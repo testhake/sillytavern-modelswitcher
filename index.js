@@ -1,5 +1,5 @@
-﻿import { saveSettingsDebounced } from '../../../script.js';
-import { extension_settings } from '../../extensions.js';
+﻿import { saveSettingsDebounced } from '../../../../script.js';
+import { extension_settings } from '../../../extensions.js';
 
 const MODULE_NAME = 'sillytavern-modelswitcher';
 const extensionFolderPath = `scripts/extensions/third-party/${MODULE_NAME}`;
