@@ -1,0 +1,11 @@
+{
+    "display_name": "Model Switcher",
+    "loading_order": 10,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "testhake",
+    "version": "1.0.0",
+    "homePage": "https://github.com/testhake/sillytavern-modelswitcher"
+}

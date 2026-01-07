@@ -1,0 +1,193 @@
+#ms_settings {
+    margin-bottom: 1em;
+}
+
+    #ms_settings .notes {
+        color: #6c757d;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+#ms_toggle_button {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+/* Switcher Window */
+#ms_switcher_window {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 500px;
+    max-height: 600px;
+    background: var(--SmartThemeBodyColor, #222);
+    border: 2px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+    #ms_switcher_window.dragging {
+        opacity: 0.8;
+    }
+
+.ms-window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background: var(--SmartThemeBlurTintColor, #333);
+    border-bottom: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+}
+
+.ms-window-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--SmartThemeQuoteColor, #fff);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.ms-window-close {
+    background: none;
+    border: none;
+    color: var(--SmartThemeQuoteColor, #aaa);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    font-size: 16px;
+    transition: all 0.2s;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .ms-window-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--SmartThemeQuoteColor, #fff);
+    }
+
+.ms-window-body {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 520px;
+}
+
+    .ms-window-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .ms-window-body::-webkit-scrollbar-track {
+        background: var(--SmartThemeBodyColor, #222);
+    }
+
+    .ms-window-body::-webkit-scrollbar-thumb {
+        background: var(--SmartThemeBorderColor, #444);
+        border-radius: 4px;
+    }
+
+.ms-toolbar {
+    margin-bottom: 15px;
+}
+
+.ms-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--SmartThemeQuoteColor, #888);
+    font-style: italic;
+}
+
+.ms-profile-item {
+    background: var(--SmartThemeBlurTintColor, #1a1a1a);
+    border: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.ms-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.ms-profile-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.ms-profile-actions {
+    display: flex;
+    gap: 5px;
+}
+
+    .ms-profile-actions button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+.ms-capture-btn {
+    background: rgba(52, 152, 219, 0.2);
+}
+
+    .ms-capture-btn:hover {
+        background: rgba(52, 152, 219, 0.4);
+    }
+
+.ms-apply-btn {
+    background: rgba(46, 204, 113, 0.2);
+}
+
+    .ms-apply-btn:hover {
+        background: rgba(46, 204, 113, 0.4);
+    }
+
+.ms-delete-btn {
+    background: rgba(231, 76, 60, 0.2);
+}
+
+    .ms-delete-btn:hover {
+        background: rgba(231, 76, 60, 0.4);
+    }
+
+.ms-profile-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ms-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .ms-field label {
+        font-size: 11px;
+        color: var(--SmartThemeQuoteColor, #aaa);
+        font-weight: 500;
+    }
+
+    .ms-field input,
+    .ms-field textarea {
+        font-size: 12px;
+    }
+
+@media (max-width: 768px) {
+    #ms_switcher_window {
+        width: 90%;
+        max-width: 450px;
+        right: 5%;
+    }
+}
