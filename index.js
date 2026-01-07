@@ -120,7 +120,7 @@ function applyProfile(profileId) {
             modelIdInput.dispatchEvent(new Event('input', { bubbles: true }));
             modelIdInput.dispatchEvent(new Event('change', { bubbles: true }));
             appliedCount++;
-            console.log(`[${MODULE_NAME}] Set Model ID to:`, profile.modelId);
+            console.log(`[${MODULE_NAME}] Set Model ID to:`, profile.modelId || '(empty)');
         } else {
             console.warn(`[${MODULE_NAME}] Model ID input (#custom_model_id) not found`);
         }
@@ -137,14 +137,24 @@ function applyProfile(profileId) {
             console.warn(`[${MODULE_NAME}] Post-Processing select (#custom_prompt_post_processing) not found`);
         }
 
-        // Set Include Body Parameters
+        // Set Include Body Parameters - explicitly handle empty values
         const bodyParamsInput = document.querySelector("#custom_include_body");
         if (bodyParamsInput) {
+            // Set the value (even if empty)
             bodyParamsInput.value = profile.bodyParams || '';
+
+            // Trigger multiple events to ensure SillyTavern recognizes the change
             bodyParamsInput.dispatchEvent(new Event('input', { bubbles: true }));
             bodyParamsInput.dispatchEvent(new Event('change', { bubbles: true }));
+            bodyParamsInput.dispatchEvent(new Event('blur', { bubbles: true }));
+
+            // For extra safety, also try jQuery trigger if available
+            if (typeof $ !== 'undefined' && $(bodyParamsInput).length) {
+                $(bodyParamsInput).trigger('input').trigger('change');
+            }
+
             appliedCount++;
-            console.log(`[${MODULE_NAME}] Set Body Parameters to:`, profile.bodyParams);
+            console.log(`[${MODULE_NAME}] Set Body Parameters to:`, profile.bodyParams || '(empty)');
         } else {
             console.warn(`[${MODULE_NAME}] Body Parameters input (#custom_include_body) not found`);
         }
